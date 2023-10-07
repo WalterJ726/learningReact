@@ -1,21 +1,14 @@
-import React, { Children, createContext } from 'react'
+import React, { Children } from 'react'
 
 
-const {Provider, Consumer} = createContext()
-function ComA () {
+function ListItem ({children}) {
   return (
     <div>
-      this is ComA
-      <ComC/>
+      ListItem, {children.map(child => child)}
     </div>
   )
 }
 
-function ComC () {
-  return (
-    <
-  )
-}
 
 class App extends React.Component {
   render () {
