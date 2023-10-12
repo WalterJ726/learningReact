@@ -442,3 +442,6 @@ link 跳转部分，会改变对应的url
 
 ## command 
 netstat -ano
+
+
+https://segmentfault.com/a/1190000038559170#item-0-5
