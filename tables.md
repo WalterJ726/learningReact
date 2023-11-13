@@ -1,3 +1,5 @@
+```javascript
+
 import React, { useState } from 'react';
 import { Table, Input, Button, TimePicker } from 'antd';
 import moment from 'moment';
@@ -64,9 +66,11 @@ const MyComponent = () => {
 };
 
 export default MyComponent;
+```
 
 
 ## 展示页面
+```
 import React, { useState, useEffect } from 'react';
 import { Table } from 'antd';
 import moment from 'moment';
@@ -127,4 +131,7 @@ const MyComponent = () => {
 };
 
 export default MyComponent;
+
+```javascript
+
 
