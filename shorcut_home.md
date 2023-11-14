@@ -171,3 +171,101 @@ export default App;
 
 
 ```
+
+### 含有Dropdown menu的代码
+```javascript
+import React, { useState } from 'react';
+import { observer } from 'mobx-react';
+import { Card, Modal, Form, Input, Button, Dropdown, Menu } from 'antd';
+import { MoreOutlined } from '@ant-design/icons';
+import { shortcutStore } from './stores/ShortcutStore';
+
+const EditShortcutModal = observer(({ visible, onEdit, onCancel, initialData }) => {
+  const [form] = Form.useForm();
+
+  return (
+    <Modal
+      visible={visible}
+      title="编辑快捷方式"
+      okText="保存"
+      cancelText="取消"
+      onCancel={onCancel}
+      onOk={() => {
+        form
+          .validateFields()
+          .then(values => {
+            form.resetFields();
+            onEdit(values);
+          })
+          .catch(info => {
+            console.log('Validate Failed:', info);
+          });
+      }}
+    >
+      <Form form={form} layout="vertical" name="form_in_modal" initialValues={initialData}>
+        <Form.Item name="title" label="名称" rules={[{ required: true, message: '请输入快捷方式的名称!' }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item name="url" label="网址" rules={[{ required: true, message: '请输入快捷方式的网址!' }]}>
+          <Input />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+});
+
+const App = observer(() => {
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingShortcut, setEditingShortcut] = useState({});
+
+  const handleMenuClick = (shortcut, index, e) => {
+    if (e.key === 'edit') {
+      setEditingShortcut({ ...shortcut, index });
+      setEditModalVisible(true);
+    } else if (e.key === 'delete') {
+      shortcutStore.removeShortcut(index);
+    }
+  };
+
+  const handleEdit = editedShortcut => {
+    shortcutStore.editShortcut(editingShortcut.index, editedShortcut);
+    setEditModalVisible(false);
+  };
+
+  const menu = (shortcut, index) => (
+    <Menu onClick={e => handleMenuClick(shortcut, index, e)}>
+      <Menu.Item key="edit">Edit Shortcut</Menu.Item>
+      <Menu.Item key="delete">Remove Shortcut</Menu.Item>
+    </Menu>
+  );
+
+  return (
+    <div>
+      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+        {shortcutStore.shortcuts.map((shortcut, index) => (
+          <Card key={index} style={{ width: 200, margin: 10 }}>
+            <Dropdown overlay={menu(shortcut, index)} trigger={['click']}>
+              <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
+                <MoreOutlined />
+              </a>
+            </Dropdown>
+            <Card.Meta
+              title={shortcut.title}
+              description={shortcut.url}
+            />
+          </Card>
+        ))}
+      </div>
+      <EditShortcutModal
+        visible={editModalVisible}
+        onEdit={handleEdit}
+        onCancel={() => setEditModalVisible(false)}
+        initialData={editingShortcut}
+      />
+    </div>
+  );
+});
+
+export default App;
+
+```
