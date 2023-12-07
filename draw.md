@@ -175,3 +175,59 @@ if __name__ == "__main__":
 ```
 
 ## 换成实线
+```python
+import matplotlib.pyplot as plt
+import pandas as pd
+import re
+
+# 读取日志文件
+def read_log_file(file_path):
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+    return lines
+
+# 解析日志
+def parse_log(lines):
+    bypass_data = []
+    for line in lines:
+        timestamp, _, _, meta = re.findall(r'\[(.*?)\]', line)[:4]
+        type, title, value = re.findall(r'type:(.*?), title:(.*?), value:(.*)', meta)[0]
+
+        if title == 'bypass':
+            bypass_data.append((timestamp, value))
+    return bypass_data
+
+# 绘制散点图和连接线
+def plot_bypass(bypass_data):
+    df = pd.DataFrame(bypass_data, columns=['Timestamp', 'Value'])
+    df['Value'] = pd.to_numeric(df['Value'])
+
+    # 绘制散点图
+    plt.scatter(df['Timestamp'], df['Value'])
+
+    # 从每个点到x轴画线
+    for _, row in df.iterrows():
+        plt.plot([row['Timestamp'], row['Timestamp']], [0, row['Value']], 'k-')
+
+    # 在每个点上添加标签
+    for i, row in df.iterrows():
+        plt.text(row['Timestamp'], row['Value'], f"{row['Timestamp']}: {row['Value']}", 
+                 ha='right', va='bottom', fontsize=8)
+
+    plt.xlabel('Timestamp')
+    plt.ylabel('Value')
+    plt.title('Bypass Events')
+    plt.xticks(rotation=45)
+    plt.show()
+
+# 主函数
+def main():
+    log_file_path = 'your_log_file.txt'  # 替换为您的日志文件路径
+    lines = read_log_file(log_file_path)
+    bypass_data = parse_log(lines)
+    plot_bypass(bypass_data)
+
+if __name__ == "__main__":
+    main()
+
+```
