@@ -257,3 +257,37 @@ def plot_lane_change(lane_change_data):
 # 主函数保持不变...
 
 ```
+
+### 添加时间戳到下方
+```python
+import matplotlib.pyplot as plt
+import pandas as pd
+import re
+
+# 其他函数保持不变...
+
+# 绘制散点图和连接线
+def plot_bypass(bypass_data):
+    df = pd.DataFrame(bypass_data, columns=['Timestamp', 'Value'])
+    df['Value'] = pd.to_numeric(df['Value'])
+
+    plt.scatter(df['Timestamp'], df['Value'])
+
+    # 从每个点到x轴画浅蓝色线
+    for _, row in df.iterrows():
+        plt.plot([row['Timestamp'], row['Timestamp']], [0, row['Value']], 'c-')  # 浅蓝色线条
+
+    # 在x轴下方添加时间戳标签
+    for i, row in df.iterrows():
+        plt.text(i, 0, row['Timestamp'], ha='center', va='top', fontsize=8, rotation=45)
+
+    plt.xlabel('Timestamp')
+    plt.ylabel('Value')
+    plt.title('Bypass Events')
+    plt.xticks(rotation=45)  # 根据需要调整x轴刻度的旋转角度
+    plt.show()
+
+# 主函数保持不变...
+
+
+```
