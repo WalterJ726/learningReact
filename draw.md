@@ -231,3 +231,29 @@ if __name__ == "__main__":
     main()
 
 ```
+### 画多曲线在同一个图中
+```python
+import matplotlib.pyplot as plt
+import pandas as pd
+import re
+
+# 其他函数保持不变...
+
+# 绘制折线图，将所有曲线添加到同一个图表中
+def plot_lane_change(lane_change_data):
+    plt.figure(figsize=(10, 6))  # 可以调整图表的大小
+
+    for curve, data in lane_change_data.items():
+        df = pd.DataFrame(data, columns=['Timestamp', curve])
+        plt.plot(df['Timestamp'], df[curve], label=curve)  # 添加曲线到图表
+
+    plt.xlabel('Timestamp')
+    plt.ylabel('Value')
+    plt.title('Lane Change Chart')
+    plt.legend()  # 显示图例
+    plt.xticks(rotation=45)
+    plt.show()
+
+# 主函数保持不变...
+
+```
