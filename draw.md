@@ -1,3 +1,5 @@
+```python
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import re
@@ -57,3 +59,59 @@ def main():
 
 if __name__ == "__main__":
     main()
+```
+
+
+
+### 第二个图
+```python
+import matplotlib.pyplot as plt
+import pandas as pd
+import re
+
+# 读取日志文件
+def read_log_file(file_path):
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+    return lines
+
+# 解析日志
+def parse_log(lines):
+    bypass_data = []
+    for line in lines:
+        timestamp, _, _, meta = re.findall(r'\[(.*?)\]', line)[:4]
+        type, title, value = re.findall(r'type:(.*?), title:(.*?), value:(.*)', meta)[0]
+
+        if title == 'bypass':
+            bypass_data.append((timestamp, value))
+    return bypass_data
+
+# 绘制stem图
+def plot_bypass(bypass_data):
+    df = pd.DataFrame(bypass_data, columns=['Timestamp', 'Value'])
+    df['Value'] = pd.to_numeric(df['Value'])
+    markers, stems, baseline = plt.stem(df['Timestamp'], df['Value'])
+    plt.setp(baseline, color='r', linewidth=2)
+
+    # 在每个点上添加标签
+    for i in range(len(df)):
+        plt.text(df['Timestamp'][i], df['Value'][i], f"{df['Timestamp'][i]}: {df['Value'][i]}", 
+                 verticalalignment='bottom', horizontalalignment='right', fontsize=8)
+
+    plt.xlabel('Timestamp')
+    plt.ylabel('Value')
+    plt.title('Bypass Chart')
+    plt.xticks(rotation=45)
+    plt.show()
+
+# 主函数
+def main():
+    log_file_path = 'your_log_file.txt'  # 替换为您的日志文件路径
+    lines = read_log_file(log_file_path)
+    bypass_data = parse_log(lines)
+    plot_bypass(bypass_data)
+
+if __name__ == "__main__":
+    main()
+
+```
