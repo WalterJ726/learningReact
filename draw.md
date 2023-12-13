@@ -486,3 +486,93 @@ def plot_bypass_with_float_timestamps_using_plot(bypass_data, freq='T'):
 plot_bypass_with_float_timestamps_using_plot(bypass_data)
 
 ```
+
+
+### 直接插值的方式
+```python
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+import re
+from datetime import datetime, timedelta
+
+
+def plot_bypass(bypass_data):
+    df = pd.DataFrame(bypass_data, columns=['string1', 'Timestamp', 'Value', 'string2])
+    # 绘制
+    plt.plot(df['Timestamp'], df['Value'], where='post')
+
+    # 在x轴下方添加时间戳标签
+    for i, row in df.iterrows():
+        plt.text(row['Timestamp'], 0, row['Timestamp'].strftime('%Y-%m-%d %H:%M:%S'), 
+                 ha='center', va='top', fontsize=8, rotation=45)
+
+    plt.xlabel('Timestamp')
+    plt.ylabel('Value')
+    plt.title('Bypass Events')
+    plt.xticks(rotation=45)
+    plt.show()
+
+# 假设的数据和主函数...
+
+这个bypass_data是一个list，里面的每一个元素为[“字符串1", double的数字,1, "用户字符串"]，这里面的数据有点奇怪，就是这里的double数字都是分散地集中的，比如说有一部分是集中在一起，然后要加上很大的一个数值才会到下一堆数据。比如说，数据为是[("112233", 3885.264, 1, "2244"),("112233", 3885.365, 1, "2244"),("112233", 3908.560, 1, "2244"),("112233", 3908.674, 1, "2244"),("112233", 3908.782, 1, "2244")]我希望你帮我想一个办法改造一下这个bypass_data，根据double数字采样一些新的数据，这样在原来有值的地方，还是保持原来的值，没有值的地方就变成0。
+```
+
+### 直接填充的方式
+```python
+
+# 示例数据
+bypass_data_example = [("112233", 3885.264, 1, "2244"),
+                       ("112233", 3885.365, 1, "2244"),
+                       ("112233", 3908.560, 1, "2244"),
+                       ("112233", 3908.674, 1, "2244"),
+                       ("112233", 3908.782, 1, "2244")]
+
+# 确定时间范围和间隔
+min_time = min(item[1] for item in bypass_data_example)
+max_time = max(item[1] for item in bypass_data_example)
+time_interval = 0.1  # 时间间隔设置为0.1秒
+
+# 创建完整的时间序列
+complete_time_series = np.arange(min_time, max_time + time_interval, time_interval)
+
+# 填充数据
+filled_data = []
+for time_point in complete_time_series:
+    # 检查该时间点是否在原始数据中
+    value = next((item[2] for item in bypass_data_example if np.isclose(item[1], time_point, atol=time_interval/2)), 0)
+    filled_data.append((time_point, value))
+
+# 准备绘图所需的数据
+df_filled = pd.DataFrame(filled_data, columns=['Timestamp', 'Value'])
+
+# 绘制阶跃图
+plt.figure(figsize=(12, 6))
+plt.step(df_filled['Timestamp'], df_filled['Value'], where='post')
+
+plt.xlabel('Timestamp (seconds)')
+plt.ylabel('Value')
+plt.title('Bypass Events with Filled Data')
+plt.xticks(rotation=45)
+plt.show()
+
+```
+
+
+```python
+
+import pandas as pd  # 导入 Pandas 库
+
+# 重新创建 DataFrame
+df_filled = pd.DataFrame(filled_data, columns=['Timestamp', 'Value'])
+
+# 绘制阶跃图
+plt.figure(figsize=(12, 6))
+plt.step(df_filled['Timestamp'], df_filled['Value'], where='post')
+
+plt.xlabel('Timestamp (seconds)')
+plt.ylabel('Value')
+plt.title('Bypass Events with Filled Data')
+plt.xticks(rotation=45)
+plt.show()
+```
