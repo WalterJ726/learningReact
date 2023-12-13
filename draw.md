@@ -576,3 +576,35 @@ plt.title('Bypass Events with Filled Data')
 plt.xticks(rotation=45)
 plt.show()
 ```
+
+### 优化之后的填充算法
+
+```python
+# 优化后的填充数据过程
+filled_data_optimized = []
+current_index = 0  # 用于追踪bypass_data中的当前元素
+total_elements = len(bypass_data_example)
+
+for time_point in complete_time_series:
+    if current_index < total_elements and np.isclose(bypass_data_example[current_index][1], time_point, atol=time_interval/2):
+        # 如果当前时间点存在于bypass_data中，使用对应的值
+        filled_data_optimized.append((time_point, bypass_data_example[current_index][2]))
+        current_index += 1  # 移动到bypass_data的下一个元素
+    else:
+        # 如果当前时间点不存在于bypass_data中，填充0
+        filled_data_optimized.append((time_point, 0))
+
+# 重新创建DataFrame
+df_filled_optimized = pd.DataFrame(filled_data_optimized, columns=['Timestamp', 'Value'])
+
+# 绘制优化后的阶跃图
+plt.figure(figsize=(12, 6))
+plt.step(df_filled_optimized['Timestamp'], df_filled_optimized['Value'], where='post')
+
+plt.xlabel('Timestamp (seconds)')
+plt.ylabel('Value')
+plt.title('Optimized Bypass Events with Filled Data')
+plt.xticks(rotation=45)
+plt.show()
+
+```
