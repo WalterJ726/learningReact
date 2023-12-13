@@ -291,3 +291,63 @@ def plot_bypass(bypass_data):
 
 
 ```
+
+
+## 画成上升沿的图
+```python
+def plot_bypass(bypass_data):
+    df = pd.DataFrame(bypass_data, columns=['Timestamp', 'Value'])
+
+    plt.plot(df['Timestamp'], df['Value'])
+
+
+    # 在x轴下方添加时间戳标签
+    for i, row in df.iterrows():
+        plt.text(i, 0, row['Timestamp'], ha='center', va='top', fontsize=8, rotation=45)
+
+    plt.xlabel('Timestamp')
+    plt.ylabel('Value')
+    plt.title('Bypass Events')
+    plt.xticks(rotation=45)  # 根据需要调整x轴刻度的旋转角度
+    plt.show()
+
+这个bypass_data是有时间戳的，然后里面的value都是1，我希望你帮我想一个办法可以完美的画出阶跃上升沿的图出来。我的想法是改造一下这个bypass_data，根据时间戳采样一些新的数据，这样在原来有值的地方，还是保持原来的值，没有值的地方就变成0。
+```
+### 新的采样函数
+```python
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+def generate_time_series(bypass_data, interval=1.0):
+    # 提取时间戳并排序
+    timestamps = [ts for ts, _ in bypass_data]
+    timestamps.sort()
+
+    # 生成完整的时间序列
+    start, end = timestamps[0], timestamps[-1]
+    full_timestamps = np.arange(start, end, interval)
+
+    return full_timestamps
+
+def plot_bypass(bypass_data):
+    # 生成时间序列
+    full_timestamps = generate_time_series(bypass_data)
+
+    # 转换为DataFrame并填充数据
+    df = pd.DataFrame(bypass_data, columns=['Timestamp', 'Value'])
+    df.set_index('Timestamp', inplace=True)
+    df = df.reindex(full_timestamps, fill_value=0).reset_index()
+    df.rename(columns={'index': 'Timestamp'}, inplace=True)
+
+    # 绘制阶跃图
+    plt.step(df['Timestamp'], df['Value'], where='post')
+
+    plt.xlabel('Timestamp')
+    plt.ylabel('Value')
+    plt.title('Bypass Events')
+    plt.show()
+
+# 示例数据和主函数...
+
+```
