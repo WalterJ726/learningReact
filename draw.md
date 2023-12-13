@@ -351,3 +351,51 @@ def plot_bypass(bypass_data):
 # 示例数据和主函数...
 
 ```
+
+### 时间序列的提取
+```python
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+def extract_data(bypass_data):
+    # 提取时间戳和值
+    extracted_data = [(item[1], item[2]) for item in bypass_data]
+    return extracted_data
+
+def generate_time_series(extracted_data, interval=1.0):
+    # 提取时间戳并排序
+    timestamps = [ts for ts, _ in extracted_data]
+    timestamps.sort()
+
+    # 生成完整的时间序列
+    start, end = timestamps[0], timestamps[-1]
+    full_timestamps = np.arange(start, end, interval)
+
+    return full_timestamps
+
+def plot_bypass(bypass_data):
+    # 提取时间戳和值
+    extracted_data = extract_data(bypass_data)
+
+    # 生成时间序列
+    full_timestamps = generate_time_series(extracted_data)
+
+    # 转换为DataFrame并填充数据
+    df = pd.DataFrame(extracted_data, columns=['Timestamp', 'Value'])
+    df.set_index('Timestamp', inplace=True)
+    df = df.reindex(full_timestamps, fill_value=0).reset_index()
+    df.rename(columns={'index': 'Timestamp'}, inplace=True)
+
+    # 绘制阶跃图
+    plt.step(df['Timestamp'], df['Value'], where='post')
+
+    plt.xlabel('Timestamp')
+    plt.ylabel('Value')
+    plt.title('Bypass Events')
+    plt.show()
+
+# 示例数据和主函数...
+
+
+```
