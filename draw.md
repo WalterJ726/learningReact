@@ -399,3 +399,90 @@ def plot_bypass(bypass_data):
 
 
 ```
+### 新的采样方式
+```python
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+import re
+from datetime import datetime, timedelta
+
+# 假设的时间戳格式为 '%Y-%m-%d %H:%M:%S'，需要根据实际情况调整
+
+def generate_time_series(bypass_data, freq='T'):
+    # 转换时间戳并排序
+    timestamps = [datetime.strptime(ts, '%Y-%m-%d %H:%M:%S') for ts, _ in bypass_data]
+    timestamps.sort()
+
+    # 生成完整的时间序列
+    start, end = timestamps[0], timestamps[-1]
+    full_timestamps = pd.date_range(start=start, end=end, freq=freq)
+
+    return full_timestamps
+
+def plot_bypass(bypass_data):
+    # 生成时间序列
+    full_timestamps = generate_time_series(bypass_data)
+
+    # 转换为DataFrame并填充数据
+    df = pd.DataFrame(bypass_data, columns=['Timestamp', 'Value'])
+    df.set_index('Timestamp', inplace=True)
+    df.index = pd.to_datetime(df.index)
+    df = df.reindex(full_timestamps, fill_value=0).reset_index()
+    df.rename(columns={'index': 'Timestamp'}, inplace=True)
+
+    # 绘制阶跃图
+    plt.step(df['Timestamp'], df['Value'], where='post')
+
+    # 在x轴下方添加时间戳标签
+    for i, row in df.iterrows():
+        plt.text(row['Timestamp'], 0, row['Timestamp'].strftime('%Y-%m-%d %H:%M:%S'), 
+                 ha='center', va='top', fontsize=8, rotation=45)
+
+    plt.xlabel('Timestamp')
+    plt.ylabel('Value')
+    plt.title('Bypass Events')
+    plt.xticks(rotation=45)
+    plt.show()
+
+# 假设的数据和主函数...
+
+这个bypass_data是一个list，里面的每一个元素为[“字符串1", double的时间序列,1, "用户字符串"]，这里面的数据有点奇怪，就是这里的时间序列都是分散地集中的，比如说有一部分是集中在一起，然后要加上很大的一个数值才会到下一堆时间序列。比如说，时间是[("112233", 3885.264, 1, "2244"),("112233", 3885.365, 1, "2244"),("112233", 3908.560, 1, "2244"),("112233", 3908.674, 1, "2244"),("112233", 3908.782, 1, "2244")]我希望你帮我想一个办法可以完美的画出阶跃上升沿的图出来。我的想法是改造一下这个bypass_data，根据时间戳采样一些新的数据，这样在原来有值的地方，还是保持原来的值，没有值的地方就变成0。
+```
+
+
+### 新的画图函数
+```python
+def plot_bypass_with_float_timestamps_using_plot(bypass_data, freq='T'):
+    """
+    Plot the line chart for the bypass data using float timestamps.
+    """
+    # Create DataFrame from the bypass data
+    df = pd.DataFrame(bypass_data, columns=['String1', 'Timestamp', 'Value', 'UserString'])
+
+    # Generate a full range of timestamps
+    min_timestamp = df['Timestamp'].min()
+    max_timestamp = df['Timestamp'].max()
+    # Calculate the number of steps based on frequency (assuming freq='T' is for minutes)
+    num_steps = int((max_timestamp - min_timestamp) * 60)  # 60 steps per unit if freq is 'T'
+    full_timestamps = np.linspace(min_timestamp, max_timestamp, num_steps)
+
+    # Reindex the DataFrame to the full range, filling missing values with 0
+    df.set_index('Timestamp', inplace=True)
+    df = df.reindex(full_timestamps, fill_value=0).reset_index()
+    df.rename(columns={'index': 'Timestamp'}, inplace=True)
+
+    # Plot the line chart
+    plt.figure(figsize=(15, 5))
+    plt.plot(df['Timestamp'], df['Value'])
+    plt.xlabel('Timestamp (as float)')
+    plt.ylabel('Value')
+    plt.title('Bypass Events with Float Timestamps (Line Plot)')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+# Using the original bypass data
+plot_bypass_with_float_timestamps_using_plot(bypass_data)
+
+```
